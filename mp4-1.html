@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Reprodutor de Vídeo</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background: #f0f0f0;
+                padding: 40px;
+                text-align: center;
+            }
+
+            video {
+                width: 100%;
+
+                height: auto;
+                border: 2px solid #ccc;
+                border-radius: 10px;
+                background: #000;
+            }
+        </style>
+    </head>
+    <body>
+        <video controls>
+            <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js"></script>
+            <script type="text/javascript">
+    aclib.runPop({
+        zoneId: '9899310',
+    });
+            </script>
+            <script type="text/javascript">
+    aclib.runInPagePush({
+        zoneId: '9899318',
+        maxAds: 2,
+    });
+            </script>
+            
+            
+            <source src="https://cdn.videy.co/oA3Sl38D1.mp4" type="video/mp4" />
+            Seu navegador não suporta a tag de vídeo.
+        </video>
+    </body>
+</html>

@@ -1,14 +1,13 @@
-
 import asyncio
 import random
 import sys
 import math
 import time
 import gc
+import os  # <-- ADICIONADO para ler variável de ambiente
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeout
 from datetime import datetime
 import psutil
-import os
 from typing import Dict, List, Optional
 import logging
 import subprocess
@@ -56,6 +55,12 @@ TIMEOUT_NAVEGACAO = 15000
 TIMEOUT_CARREGAMENTO = 20000
 MAX_TENTATIVAS = 3
 TIMEOUT_VISITA = 120
+
+# ===== CONFIGURACAO DO PROXY CELULAR (via cloudflared) =====
+# Defina o endereço público gerado pelo cloudflared no Termux.
+# Exemplo: PROXY_URL = "http://scoop-lotus-quad-trademark.trycloudflare.com"
+# Para desabilitar o proxy, deixe PROXY_URL = None
+PROXY_URL = "http://scoop-lotus-quad-trademark.trycloudflare.com"  
 
 # ================= FUNCAO BEZIER =================
 def bezier(p0, p1, p2, p3, t):
@@ -970,11 +975,17 @@ async def executar_visita(usuario_id, browser_pool, rate_limiter, stats_tracker,
         
         browser = await browser_pool.get_browser(usuario_id)
         
+        # ========== CONFIGURACAO DO PROXY ==========
+        proxy_config = {"server": PROXY_URL} if PROXY_URL else None
+        if proxy_config:
+            logger.debug(f"U{usuario_id}: Usando proxy {PROXY_URL}")
+        
         context = await browser.new_context(
             viewport={'width': 1366, 'height': 768},
             user_agent=get_user_agent_by_browser(browser_type),
             ignore_https_errors=True,
-            java_script_enabled=True
+            java_script_enabled=True,
+            proxy=proxy_config   # <-- ADICIONADO
         )
         
         await context.add_init_script(get_anti_detection_script(browser_type))
@@ -1100,6 +1111,10 @@ async def executar_sistema_continuo():
     logger.info(f"   - Limpeza a cada: {CLEANUP_INTERVAL}s")
     logger.info(f"   - Timeout visita: {TIMEOUT_VISITA}s")
     logger.info(f"   - Anti-fingerprint: MAX (userAgentData, canvas, webgl, plugins, eval, visibility)")
+    if PROXY_URL:
+        logger.info(f"   - Proxy ativo: {PROXY_URL}")
+    else:
+        logger.info(f"   - Proxy: DESATIVADO (IP direto)")
     logger.info(f"{'='*60}\n")
     
     stats_tracker = StatsTracker()
